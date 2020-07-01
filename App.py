@@ -15,8 +15,6 @@ app = wx.App()
 
 #create the frame with min and max size
 frm = Frame.Frame(None, title='Backup',size=(1080,720))
-frm.SetMinSize((720,480))
-frm.SetMaxSize(wx.DisplaySize())
 frm.Show()
 frm.Title = "Backup"
 

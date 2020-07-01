@@ -10,6 +10,8 @@ class Frame(wx.Frame):
     def __init__(self, *args, **kw):
         super(Frame, self).__init__(*args, **kw)
         pnl = wx.Panel(self)
+        self.SetMinSize((720,480))
+        self.SetMaxSize(wx.DisplaySize())
 
         # create a menu bar
         self.makeMenuBar()
