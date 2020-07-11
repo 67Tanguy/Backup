@@ -1,13 +1,7 @@
 #!/usr/bin/env python
 
 import wx
-import wx.svg
 import gui.Frame as Frame
-
-
-def size_change(event):
-    width,height = event.GetSize()
-    print ("Width =",width,"Height =",height)
 
 # create the app
 app = wx.App()

@@ -17,6 +17,6 @@ python3 App.py
 ## How to use it ?
 
 * The main page is build to directly copy files in a backup system.
-* The other page is to copy files and compare them with an other instance. You can then choose to replace somme files which are changed or keep them. 
+* The other page is to copy files and compare them with another instance. You can then choose to replace somme files which are changed or keep them. 
 
 

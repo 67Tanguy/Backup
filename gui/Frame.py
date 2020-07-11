@@ -2,9 +2,12 @@
 
 import wx
 from pathlib import Path
-import wx.lib.buttons as buts
 import os
-import files.CpFile as cp
+import sys 
+fullPath = str(Path(__file__).absolute().parent.parent)
+sys.path.append(fullPath + "/files")
+import CpFile as cp
+
 
 class Frame(wx.Frame):
     """
@@ -22,6 +25,12 @@ class Frame(wx.Frame):
         # Create and a status bar
         self.CreateStatusBar()
         self.SetStatusText("Welcome to backup ! try to not screw-up your data this time !")
+        self.src = ""
+        self.dst = ""
+        self.srcBoxListe = wx.BoxSizer(wx.VERTICAL)
+
+        
+
 
         
         
@@ -64,10 +73,25 @@ class Frame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnExit,  exitItem)
         self.Bind(wx.EVT_MENU, self.OnAbout, aboutItem)
 
-    def folderChoice(self, event):
+    def folderSrc(self, event):
         selector = wx.DirSelector("choose a folder")
-        print(selector.strip())
+        if (selector):
+            #self.srcFinal.Hide()
+            self.src = selector
+            print(self.src)
+            #self.srcFolderDisplay()
+        
         return selector.strip()
+    
+    def folderDst(self, event):
+        selector = wx.DirSelector("choose a folder")
+        if (selector):
+            self.dst = selector
+            print(self.dst)  
+        return selector.strip()
+    
+    
+            
 
     def mypanel(self):
 
@@ -81,24 +105,26 @@ class Frame(wx.Frame):
         
         srcBox = wx.BoxSizer(wx.VERTICAL)
         dstBox = wx.BoxSizer(wx.VERTICAL)
-
+       
         srcImg = wx.Image(fullPath+"/assets/png/add.png")
         srcBmp=srcImg.Scale(int(srcImg.GetWidth()/4),int(srcImg.GetHeight()/4)).ConvertToBitmap()
+        self.srcFinal = wx.StaticBitmap(panel, -1, srcBmp)
+    
+
         src = wx.Button(panel, label= "choose the folder to save")
-        srcFinal = wx.StaticBitmap(panel, -1, srcBmp)
-        src.Bind(wx.EVT_BUTTON,self.folderChoice)
+        src.Bind(wx.EVT_BUTTON,self.folderSrc)
 
         dstImg = wx.Image(fullPath+"/assets/png/add.png")
         dstBmp=dstImg.Scale(int(dstImg.GetWidth()/4),int(dstImg.GetHeight()/4)).ConvertToBitmap()
+        self.dstFinal = wx.StaticBitmap(panel, -1, dstBmp)
+
         dst = wx.Button(panel, label= "Choose the location to save the folder")
-        dstFinal = wx.StaticBitmap(panel, -1, dstBmp)
-        dst.Bind(wx.EVT_BUTTON,self.folderChoice)
+        dst.Bind(wx.EVT_BUTTON,self.folderDst)
         
         
         arrowImg = wx.Image(fullPath+"/assets/png/arrow.png")
         arrowBmp=arrowImg.Scale(int(arrowImg.GetWidth()/4),int(arrowImg.GetHeight()/4)).ConvertToBitmap()
         arrow = wx.StaticBitmap(panel, -1, arrowBmp)
-        arrow.Bind(wx.EVT_BUTTON,self.folderChoice)
 
 
         submit = wx.Button(panel, label="Submit")
@@ -123,12 +149,13 @@ class Frame(wx.Frame):
         container.AddStretchSpacer()
 
         srcBox.AddStretchSpacer()
-        srcBox.Add(srcFinal, flag=wx.ALIGN_CENTER)
+        srcBox.Add(self.srcFinal, flag=wx.ALIGN_CENTER)
+        srcBox.Add(self.srcBoxListe, flag=wx.ALIGN_CENTER)
         srcBox.Add(src, flag=wx.ALIGN_CENTER)
         srcBox.AddStretchSpacer()
 
         dstBox.AddStretchSpacer()
-        dstBox.Add(dstFinal, flag=wx.ALIGN_CENTER)
+        dstBox.Add(self.dstFinal, flag=wx.ALIGN_CENTER)
         dstBox.Add(dst, flag=wx.ALIGN_CENTER)
         dstBox.AddStretchSpacer()
 
@@ -161,7 +188,30 @@ class Frame(wx.Frame):
     
     def OnSubmit(self, event):
         """Do a copy of the src to dst"""
-        wx.MessageBox("The copy will start soon !")
+        if self.dst and self.src :
+            if self.src in self.dst :
+                wx.MessageBox("You can not choose this destination because it's in the source folder.","Information", wx.OK  | wx.ICON_INFORMATION)
+            else :
+                new = self.dst+"/"+os.path.basename(self.src)
+                file=cp.CpFile(self.src,new)
+                str_message = "You have choosen to copy "+ os.path.basename(self.src)+" to the folder "+ os.path.basename(self.dst)
+                res=""
+        
+                message = wx.MessageBox(str_message,"copy", wx.OK | wx.CANCEL | wx.ICON_INFORMATION)
+                if message==wx.OK : 
+                    res=file.copy()
+                if res:
+                    if self.dst!=str(Path(self.src).absolute().parent):
+                        res_err=file.fail()
+                        if res_err:
+                            wx.MessageBox(str(res_err),"ERROR", wx.OK | wx.ICON_ERROR)
+                    wx.MessageBox(str(res),"ERROR", wx.OK | wx.ICON_ERROR)
+                else :
+                    wx.MessageBox("The copy has been made !","Copy", wx.OK  | wx.ICON_INFORMATION)
+        else :
+            wx.MessageBox("You have to choose the source folder or the destination","Information", wx.OK  | wx.ICON_INFORMATION)
+
+            
 
 
 if __name__ == '__main__':
@@ -170,4 +220,5 @@ if __name__ == '__main__':
     frm = Frame(None, title='Backup')
     frm.Show()
     frm.Title = "Backup"
+    frm.mypanel()
     app.MainLoop()

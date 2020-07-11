@@ -3,6 +3,7 @@
 import shutil
 import os
 
+
 class CpFile :
     """[This class allow the user to copy files and folder]
     There are several way to copy files :
@@ -29,20 +30,20 @@ class CpFile :
         """
         try:
             shutil.copytree(self.src,self.dst,symlinks=True)
-            return True
+            return ""
         except OSError as err:
-            print("Error : % s"% err)
-            self.fail()
-            return False
+            return err
     
     def fail(self):
         """[remove the files which are already created]
         """
-            shutil.rmtree(self.dest)
+        try:
+            shutil.rmtree(self.dst)
+            return ""
         except OSError as err:
-            print("Error : % s"% err)
+            return err
     
 
 if __name__ == '__main__':
-    file = CpFile("/home/paymal/Documents/CMI","/media/paymal/Nouveau nom/Test")
+    #file = CpFile("/home/paymal/Documents/CMI","/media/paymal/Nouveau nom/Test")
     print(file.copy())
